@@ -165,7 +165,7 @@ class ForcingCovariance(object):
             new_nnz = int(np.sum(above_cutoff))
             if new_nnz > nnz:
                 nnz = new_nnz
-
+        PETSc.Sys.Print('Max nonzero elements in a row: %d' % nnz)
         return G_dict, nnz
 
     def assemble(self):
@@ -192,7 +192,9 @@ class ForcingCovariance(object):
         for key, val in G_dict.items():
             self.G.setValues(np.array(key, dtype=PETSc.IntType), val[1], val[0])
 
-        self.G.assemble()
+        # self.G.assemble()
+        self.G.assemblyBegin()
+        self.G.assemblyEnd()
 
         self.is_assembled = True
 

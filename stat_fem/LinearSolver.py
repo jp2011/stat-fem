@@ -11,6 +11,7 @@ from .InterpolationMatrix import InterpolationMatrix
 from .ObsData import ObsData
 from .solving_utils import solve_forcing_covariance, interp_covariance_to_data
 
+
 class LinearSolver(object):
     r"""
     Class encapsulating all solves on the same FEM model
@@ -90,7 +91,7 @@ class LinearSolver(object):
         """
 
         if not isinstance(A, Matrix):
-           raise TypeError("A must be a firedrake matrix")
+            raise TypeError("A must be a firedrake matrix")
         if not isinstance(b, (Function, Vector)):
             raise TypeError("b must be a firedrake function or vector")
         if not isinstance(G, ForcingCovariance):
@@ -132,7 +133,7 @@ class LinearSolver(object):
 
         self.im.destroy()
 
-    def set_params(self, params):
+    def set_params(self, params: np.ndarray):
         r"""
         Sets parameter values
 
@@ -143,7 +144,6 @@ class LinearSolver(object):
         logarithmic scale to enforce positivity.
 
         :param params: New set of parameters (must be a numpy array of length 3)
-        :type params: ndarray
         :returns: None
         """
 
@@ -245,7 +245,7 @@ class LinearSolver(object):
 
             if self.G.comm.rank == 0:
                 try:
-                    L = cho_factor(Ks + rho**2*self.Cu)
+                    L = cho_factor(Ks + rho**2 * self.Cu)
                 except LinAlgError:
                     raise LinAlgError("Error attempting to compute the Cholesky factorization " +
                                       "of the model discrepancy plus forcing covariance")
@@ -474,15 +474,15 @@ class LinearSolver(object):
         if self.ensemble_comm.rank == 0 and self.G.comm.rank == 0:
             try:
                 Ks = self.data.calc_K_plus_sigma(self.params[1:])
-                LC = cho_factor(Ks + rho**2*self.Cu)
+                LC = cho_factor(Ks + rho**2 * self.Cu)
             except LinAlgError:
                 raise LinAlgError("Cholesky factorization of one of the covariance matrices failed")
 
             # compute predictive covariance
 
-            Cuy = Cucc - rho**2*np.dot(Cucd, cho_solve(LC, Cucd.T))
+            Cuy = Cucc - rho**2 * np.dot(Cucd, cho_solve(LC, Cucd.T))
 
-            Cuy = ObsData(coords, np.zeros(coords.shape[0]), unc).calc_K_plus_sigma(self.params[1:]) + rho**2*Cuy
+            Cuy = ObsData(coords, np.zeros(coords.shape[0]), unc).calc_K_plus_sigma(self.params[1:]) + rho**2 * Cuy
 
         else:
             Cuy = np.zeros((0,0))
